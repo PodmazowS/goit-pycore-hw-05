@@ -1,0 +1,75 @@
+from typing import Callable
+
+def input_error(func: Callable):
+    def inner(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except ValueError:
+            return "Give me name and phone number please"
+        except KeyError:
+            return "This contact doesn't exist"
+        except IndexError:
+            return "Provide the argument for operation"
+        
+    return inner
+
+def parse_input(user_input: str):
+    cmd, *args = user_input.split()
+    cmd = cmd.strip().lower()
+    return cmd, *args
+
+@input_error
+def add_contact(args: str, contacts: dict):
+    name, phone = args
+    contacts[name] = phone
+    return "Contact added."
+
+@input_error
+def get_phone_num(name: str, contacts: dict):
+    return contacts.get(name)
+
+@input_error
+def show_all(contacts: dict):
+    if not contacts:
+        return f"Zero contacts found! {contacts}"
+    result = []
+    for name, phone in contacts.items():
+        result.append(f"{name}: {phone}")
+
+    return result
+
+@input_error
+def update_contact(args: str, contacts: dict):
+    name, phone = args
+    if name in contacts:
+        contacts[name] = phone
+        return "Contact was updated" 
+    else:
+        raise KeyError
+
+
+def main():
+    contacts = {}
+    print("Welcome to the assistant bot!")
+    while True:
+        user_input = input("Enter a command: ")
+        command, *args = parse_input(user_input)
+
+        if command in ["close", "exit"]:
+            print("Good bye!")
+            break
+        elif command == "hello":
+            print("How can I help you?")
+        elif command == "add":
+            print(add_contact(args, contacts))
+        elif command == "change":
+            print(update_contact(args, contacts))
+        elif command == "phone": 
+            print(get_phone_num(args[0], contacts))
+        elif command == "all":
+            print(show_all(contacts))
+        else:
+            print("Invalid command.")
+
+if __name__ == "__main__":
+    main()
