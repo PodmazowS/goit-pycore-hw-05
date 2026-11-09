@@ -13,9 +13,14 @@ def input_error(func: Callable):
         
     return inner
 
+
 def parse_input(user_input: str):
-    cmd, *args = user_input.split()
-    cmd = cmd.strip().lower()
+    parts = user_input.split()
+    if not parts:
+        return "", []
+    cmd = parts[0].strip().lower()
+    args = parts[1:]
+
     return cmd, *args
 
 @input_error
@@ -25,8 +30,9 @@ def add_contact(args: str, contacts: dict):
     return "Contact added."
 
 @input_error
-def get_phone_num(name: str, contacts: dict):
-    return contacts.get(name)
+def get_phone_num(args: list, contacts: dict):
+    name = args[0]
+    return contacts[name]
 
 @input_error
 def show_all(contacts: dict):
@@ -36,7 +42,7 @@ def show_all(contacts: dict):
     for name, phone in contacts.items():
         result.append(f"{name}: {phone}")
 
-    return result
+    return "\n".join(result)
 
 @input_error
 def update_contact(args: str, contacts: dict):
@@ -65,7 +71,7 @@ def main():
         elif command == "change":
             print(update_contact(args, contacts))
         elif command == "phone": 
-            print(get_phone_num(args[0], contacts))
+            print(get_phone_num(args, contacts))
         elif command == "all":
             print(show_all(contacts))
         else:
